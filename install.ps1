@@ -14,7 +14,7 @@ param(
     [ValidateSet("x64", "arm64")]
     [string]$Arch = "x64",
     [string]$Owner = "Hehehers1488",
-    [string]$Repo = "ymusic-gamebar-widget"
+    [string]$Repo = "yandex-music-gamebar-widget"
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,15 +23,24 @@ if ([System.Environment]::OSVersion.Version.Build -lt 19041) {
     Write-Warning "This widget targets Windows 10 2004 (build 19041)+. Your build: $([System.Environment]::OSVersion.Version.Build)"
 }
 
-$releaseUrl = "https://github.com/$Owner/$Repo/releases/$Tag/download"
-$msixUrl = "$releaseUrl/YMusicGameBarWidget_$Arch.msix"
-$cerUrl = "$releaseUrl/YMusicGameBarWidget.cer"
+$apiUrl = "https://api.github.com/repos/$Owner/$Repo/releases/$Tag"
+$release = Invoke-RestMethod -Uri $apiUrl -Headers @{ "User-Agent" = "ymusic-widget-installer" }
+
+$msixAsset = $release.assets | Where-Object { $_.name -like "YMusicGameBarWidget_*_${Arch}.msix" } | Select-Object -First 1
+$cerAsset = $release.assets | Where-Object { $_.name -eq "YMusicGameBarWidget.cer" } | Select-Object -First 1
+if (-not $msixAsset -or -not $cerAsset) {
+    Write-Error "Required assets not found in release $Tag (arch=$Arch). Check $Owner/$Repo releases."
+    exit 1
+}
+
+$msixUrl = $msixAsset.browser_download_url
+$cerUrl = $cerAsset.browser_download_url
 
 $tmp = Join-Path $env:TEMP "ymusic-widget"
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 
-$msixPath = Join-Path $tmp "YMusicGameBarWidget_$Arch.msix"
-$cerPath = Join-Path $tmp "YMusicGameBarWidget.cer"
+$msixPath = Join-Path $tmp $msixAsset.name
+$cerPath = Join-Path $tmp $cerAsset.name
 
 Write-Host "Downloading $msixUrl ..."
 Invoke-WebRequest -Uri $msixUrl -OutFile $msixPath -UseBasicParsing

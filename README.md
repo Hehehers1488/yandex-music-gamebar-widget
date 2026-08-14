@@ -1,6 +1,6 @@
 # Yandex Music widget for Xbox Game Bar
 
-[![CI](https://github.com/Hehehers1488/ymusic-gamebar-widget/actions/workflows/ci.yml/badge.svg)](https://github.com/Hehehers1488/ymusic-gamebar-widget/actions/workflows/ci.yml)
+[![CI](https://github.com/Hehehers1488/yandex-music-gamebar-widget/actions/workflows/ci.yml/badge.svg)](https://github.com/Hehehers1488/yandex-music-gamebar-widget/actions/workflows/ci.yml)
 
 A small UWP widget that shows the currently playing Yandex Music track and lets you control it
 (play/pause, next, previous) right inside the Xbox Game Bar overlay (Win + G) — without switching
@@ -31,9 +31,9 @@ _Coming soon._
 1. Open PowerShell (not an elevated window is enough on most systems):
    ```powershell
    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-   irm https://github.com/Hehehers1488/ymusic-gamebar-widget/releases/latest/download/install.ps1 | iex
+   irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
    ```
-2. Or download `install.ps1` from the [Releases](https://github.com/Hehehers1488/ymusic-gamebar-widget/releases)
+2. Or download `install.ps1` from the [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases)
    page and run it:
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\install.ps1
@@ -83,7 +83,7 @@ Then install with `.\tools\install-local.ps1` (or the manual steps above).
 
 # Виджет Яндекс Музыки для Xbox Game Bar
 
-[![CI](https://github.com/Hehehers1488/ymusic-gamebar-widget/actions/workflows/ci.yml/badge.svg)](https://github.com/Hehehers1488/ymusic-gamebar-widget/actions/workflows/ci.yml)
+[![CI](https://github.com/Hehehers1488/yandex-music-gamebar-widget/actions/workflows/ci.yml/badge.svg)](https://github.com/Hehehers1488/yandex-music-gamebar-widget/actions/workflows/ci.yml)
 
 Небольшой UWP-виджет, который показывает текущий трек Яндекс Музыки и позволяет управлять им
 (играть/пауза, следующий, предыдущий) прямо в оверлее Xbox Game Bar (Win + G) — не выходя из игры.
@@ -107,9 +107,9 @@ Then install with `.\tools\install-local.ps1` (or the manual steps above).
 1. PowerShell (не обязательно от администратора):
    ```powershell
    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-   irm https://github.com/Hehehers1488/ymusic-gamebar-widget/releases/latest/download/install.ps1 | iex
+   irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
    ```
-2. Либо скачайте `install.ps1` со страницы [Releases](https://github.com/Hehehers1488/ymusic-gamebar-widget/releases) и запустите:
+2. Либо скачайте `install.ps1` со страницы [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases) и запустите:
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\install.ps1
    ```
