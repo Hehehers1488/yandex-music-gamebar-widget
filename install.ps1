@@ -53,7 +53,7 @@ Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\CurrentUser\Trust
 $existing = Get-AppxPackage -Name "YMusicGameBarWidget"
 if ($existing) {
     Write-Host "Existing install found, removing it first (version $($existing.Version)) ..."
-    Remove-AppxPackage -Package $existing.PackageFullName -ForceApplicationShutdown
+    Remove-AppxPackage -Package $existing.PackageFullName
 }
 
 Write-Host "Installing $msixPath ..."
