@@ -39,24 +39,27 @@ Widget when nothing is playing:
 
 **Easiest way (no command line needed):**
 1. Go to [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases) and download **`install.bat`**.
-2. Double-click `install.bat`. It downloads and installs everything itself.
+2. Double-click `install.bat` and **accept the UAC "administrator" prompt**. The signing
+   certificate must be trusted machine-wide for Windows to deploy the package, so the
+   installer requests admin rights. It downloads and installs everything itself.
 3. Open **Xbox Game Bar** (Win + G) → **Widgets** → find **Yandex Music** → click to add it.
 4. Play a track in the Yandex Music app. The widget updates automatically.
 
-Alternative (PowerShell):
+Alternative (elevated PowerShell):
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-Or run straight from PowerShell without downloading anything:
+Or run straight from an elevated PowerShell without downloading anything:
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
 ```
 
 Manual install: grab `YMusicGameBarWidget_x64.msix` + `YMusicGameBarWidget.cer` from a release,
-import the `.cer` into **Trusted People** (`certmgr.msc` → Current User → Trusted People),
-then `Add-AppxPackage -Path .\YMusicGameBarWidget_x64.msix`.
+import the `.cer` into **Trusted People** and **Trusted Root Certification Authorities** of the
+**Local Machine** (`certmgr.msc` → Local Computer → both stores), then
+`Add-AppxPackage -Path .\YMusicGameBarWidget_x64.msix`.
 
 ## FAQ
 
@@ -66,10 +69,11 @@ Or: `Get-AppxPackage -Name "YMusicGameBarWidget" | Remove-AppxPackage`.
 The widget stores no user data. A leftover certificate in "Trusted People" is harmless
 (you can remove it via `certmgr.msc`).
 
-**Why does Windows show a SmartScreen / "Unknown publisher" warning?**
+**Why does Windows show a SmartScreen / "Unknown publisher" warning, and why does the installer ask for admin?**
 The package is signed with a self-signed certificate (this project's own, not issued by a
-public CA). The installer puts that certificate into "Trusted People" — you're telling Windows
-"this specific certificate is OK". It grants nothing else and is used only during install.
+public CA). Windows' package deployment validates signatures against machine certificate
+stores, so the installer must trust that certificate machine-wide — that's what the
+UAC prompt is for. It grants nothing else and is used only during install.
 
 **Where are playlists, shuffle, repeat, like?**
 The Yandex Music desktop app does not expose shuffle/repeat/like over the system media session
@@ -159,23 +163,26 @@ Then install with `.\tools\install-local.ps1` (or the manual steps above).
 
 **Самый простой способ (без командной строки):**
 1. Откройте [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases) и скачайте **`install.bat`**.
-2. Запустите `install.bat` двойным кликом — он сам скачает и установит всё.
+2. Запустите `install.bat` двойным кликом и **подтвердите запрос UAC (права администратора)**.
+   Для развёртывания пакета Windows должен доверять сертификату подписи на уровне системы,
+   поэтому установщик запрашивает права администратора. Дальше он сам всё скачает и установит.
 3. Откройте **Xbox Game Bar** (Win + G) → **Виджеты** → найдите **Yandex Music** → добавьте.
 4. Включите трек в приложении Яндекс Музыки — виджет обновится автоматически.
 
-Альтернатива (PowerShell):
+Альтернатива (PowerShell **от администратора**):
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-Или сразу из PowerShell, ничего не скачивая:
+Или сразу из PowerShell от администратора, ничего не скачивая:
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
 ```
 
 Ручная установка: возьмите `YMusicGameBarWidget_x64.msix` + `YMusicGameBarWidget.cer` из релиза,
-импортируйте `.cer` в **Доверенные люди** (`certmgr.msc` → Текущий пользователь → Доверенные люди),
+импортируйте `.cer` в **«Доверенные люди»** и **«Доверенные корневые центры сертификации»**
+для **Локального компьютера** (`certmgr.msc` → Локальный компьютер → оба хранилища),
 затем `Add-AppxPackage -Path .\YMusicGameBarWidget_x64.msix`.
 
 ## FAQ
@@ -186,10 +193,11 @@ irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/
 Виджет не хранит никаких данных. Оставшийся сертификат в «Доверенных людях» безвреден
 (можно удалить через `certmgr.msc`).
 
-**Почему Windows показывает «Неизвестный издатель» / SmartScreen?**
+**Почему Windows показывает «Неизвестный издатель» / SmartScreen, и зачем установщику права администратора?**
 Пакет подписан самодельным сертификатом (собственным для проекта, а не выпущенным публичным ЦС).
-Установщик кладёт этот сертификат в «Доверенные люди» — так вы говорите Windows «вот этому
-сертификату доверяем». Никаких других прав он не даёт и нужен только на время установки.
+Развёртывание пакетов Windows проверяет подписи по машинным хранилищам сертификатов, поэтому
+установщик должен довериться этому сертификату на уровне системы — именно для этого запрос UAC.
+Никаких других прав он не даёт и нужен только на время установки.
 
 **Где плейлисты, перемешивание, повтор, лайк?**
 Десктопное приложение Яндекс Музыки не отдаёт и не принимает эти команды через системную

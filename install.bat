@@ -1,6 +1,16 @@
 @echo off
 setlocal
 title Yandex Music Widget - Installer
+
+rem AppX deployment requires machine-wide certificate trust (Administrator).
+rem Elevate this script if needed, then continue as admin.
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Requesting administrator rights...
+    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+    exit /b
+)
+
 echo ================================================
 echo   Yandex Music widget for Xbox Game Bar
 echo   Installing... please wait.

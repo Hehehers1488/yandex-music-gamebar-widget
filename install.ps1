@@ -4,6 +4,11 @@
 .DESCRIPTION
     Downloads the signed MSIX + certificate for the requested release and installs
     the widget. Works on Windows 10 2004+ (build 19041).
+
+    AppX deployment validates the package signature in the system context and only
+    reads MACHINE certificate stores, so the signing certificate must be trusted
+    machine-wide (requires Administrator). install.bat requests elevation; if you
+    run this script directly, run it from an elevated PowerShell.
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File .\install.ps1
     powershell -ExecutionPolicy Bypass -File .\install.ps1 -Arch arm64
@@ -19,8 +24,23 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Add-CertificateToStore {
+    param([string]$StoreName, [string]$StoreLocation, [string]$CertPath)
+    $store = New-Object System.Security.Cryptography.X509Certificates.X509Store($StoreName, $StoreLocation)
+    $store.Open("ReadWrite")
+    $store.Add((New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($CertPath)))
+    $store.Close()
+}
+
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
 if ([System.Environment]::OSVersion.Version.Build -lt 19041) {
     Write-Warning "This widget targets Windows 10 2004 (build 19041)+. Your build: $([System.Environment]::OSVersion.Version.Build)"
+}
+
+if (-not $isAdmin) {
+    Write-Warning "AppX deployment needs machine-wide certificate trust, which requires Administrator."
+    Write-Warning "Run this script from an elevated PowerShell, or rerun install.bat (it requests elevation automatically)."
 }
 
 $apiUrl = if ($Tag -eq "latest") {
@@ -53,12 +73,17 @@ Invoke-WebRequest -Uri $cerUrl -OutFile $cerPath -UseBasicParsing
 
 $thumbprint = (Get-PfxCertificate $msixPath).Thumbprint
 Write-Host "Trusting certificate $thumbprint ..."
-Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\CurrentUser\TrustedPeople | Out-Null
-# Import-Certificate can't target the Root store in PowerShell 5.1, so use the .NET API.
-$rootStore = New-Object System.Security.Cryptography.X509Certificates.X509Store("Root", "CurrentUser")
-$rootStore.Open("ReadWrite")
-$rootStore.Add((New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cerPath)))
-$rootStore.Close()
+
+# User stores: best effort, no admin required.
+Add-CertificateToStore -StoreName "TrustedPeople" -StoreLocation "CurrentUser" -CertPath $cerPath
+Add-CertificateToStore -StoreName "Root" -StoreLocation "CurrentUser" -CertPath $cerPath
+
+# Machine stores: required by AppX deployment, needs Administrator.
+if ($isAdmin) {
+    Write-Host "Trusting certificate machine-wide ..."
+    Add-CertificateToStore -StoreName "TrustedPeople" -StoreLocation "LocalMachine" -CertPath $cerPath
+    Add-CertificateToStore -StoreName "Root" -StoreLocation "LocalMachine" -CertPath $cerPath
+}
 
 $existing = Get-AppxPackage -Name "YMusicGameBarWidget"
 if ($existing) {
@@ -72,17 +97,11 @@ try {
 }
 catch {
     Write-Warning "Add-AppxPackage failed: $($_.Exception.Message)"
-    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Error "Certificate trust or deployment failed. Run this script again as Administrator to also trust the certificate machine-wide."
-        throw
+        Write-Host "This usually means the certificate was not trusted machine-wide." -ForegroundColor Yellow
     }
-    Write-Host "Trusting certificate machine-wide (LocalMachine\Root) and retrying ..."
-    $lmStore = New-Object System.Security.Cryptography.X509Certificates.X509Store("Root", "LocalMachine")
-    $lmStore.Open("ReadWrite")
-    $lmStore.Add((New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cerPath)))
-    $lmStore.Close()
-    Add-AppxPackage -Path $msixPath -ForceApplicationShutdown -ForceUpdateFromAnyVersion
+    Write-Error "Installation failed. Close this window and rerun install.bat - it will request Administrator rights and try again."
+    throw
 }
 
 Write-Host ""
