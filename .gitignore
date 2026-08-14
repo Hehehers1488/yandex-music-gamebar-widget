@@ -36,3 +36,6 @@ packages/
 # Logs
 *.log
 *.binlog
+
+# Local drafts (not published)
+local/
