@@ -28,18 +28,22 @@ _Coming soon._
 > Windows may show a SmartScreen / "Unknown publisher" warning — the package is signed with a
 > self-signed certificate. This is expected for a hobby project; review and accept.
 
-1. Open PowerShell (not an elevated window is enough on most systems):
-   ```powershell
-   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-   irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
-   ```
-2. Or download `install.ps1` from the [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases)
-   page and run it:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\install.ps1
-   ```
+**Easiest way (no command line needed):**
+1. Go to [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases) and download **`install.bat`**.
+2. Double-click `install.bat`. It downloads and installs everything itself.
 3. Open **Xbox Game Bar** (Win + G) → **Widgets** → find **Yandex Music** → click to add it.
 4. Play a track in the Yandex Music app. The widget updates automatically.
+
+Alternative (PowerShell):
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+Or run straight from PowerShell without downloading anything:
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
+```
 
 Manual install: grab `YMusicGameBarWidget_x64.msix` + `YMusicGameBarWidget.cer` from a release,
 import the `.cer` into **Trusted People** (`certmgr.msc` → Current User → Trusted People),
@@ -104,17 +108,22 @@ Then install with `.\tools\install-local.ps1` (or the manual steps above).
 > Windows может показать предупреждение SmartScreen / «Неизвестный издатель» — пакет подписан
 > самоподписанным сертификатом. Для пет-проекта это нормально; проверьте и примите.
 
-1. PowerShell (не обязательно от администратора):
-   ```powershell
-   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-   irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
-   ```
-2. Либо скачайте `install.ps1` со страницы [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases) и запустите:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\install.ps1
-   ```
+**Самый простой способ (без командной строки):**
+1. Откройте [Releases](https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases) и скачайте **`install.bat`**.
+2. Запустите `install.bat` двойным кликом — он сам скачает и установит всё.
 3. Откройте **Xbox Game Bar** (Win + G) → **Виджеты** → найдите **Yandex Music** → добавьте.
 4. Включите трек в приложении Яндекс Музыки — виджет обновится автоматически.
+
+Альтернатива (PowerShell):
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+Или сразу из PowerShell, ничего не скачивая:
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/download/install.ps1 | iex
+```
 
 Ручная установка: возьмите `YMusicGameBarWidget_x64.msix` + `YMusicGameBarWidget.cer` из релиза,
 импортируйте `.cer` в **Доверенные люди** (`certmgr.msc` → Текущий пользователь → Доверенные люди),
