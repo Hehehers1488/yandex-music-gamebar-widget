@@ -25,9 +25,9 @@ jobs:
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
           if (-not (Test-Path $vswhere)) { Write-Error "vswhere not found"; exit 1 }
           $msbuild = & $vswhere -latest -products * `
-            -requires Microsoft.VisualStudio.ComponentGroup.UWP.BuildTools `
+            -requires Microsoft.VisualStudio.Workload.Universal `
             -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
-          if (-not $msbuild) { Write-Error "UWP Build Tools not installed on this runner"; exit 1 }
+          if (-not $msbuild) { Write-Error "UWP workload (Universal) not installed on this runner"; exit 1 }
           Write-Host "MSBuild: $msbuild"
           "msbuild=$msbuild" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
