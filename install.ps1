@@ -23,7 +23,11 @@ if ([System.Environment]::OSVersion.Version.Build -lt 19041) {
     Write-Warning "This widget targets Windows 10 2004 (build 19041)+. Your build: $([System.Environment]::OSVersion.Version.Build)"
 }
 
-$apiUrl = "https://api.github.com/repos/$Owner/$Repo/releases/$Tag"
+$apiUrl = if ($Tag -eq "latest") {
+    "https://api.github.com/repos/$Owner/$Repo/releases/latest"
+} else {
+    "https://api.github.com/repos/$Owner/$Repo/releases/tags/$Tag"
+}
 $release = Invoke-RestMethod -Uri $apiUrl -Headers @{ "User-Agent" = "ymusic-widget-installer" }
 
 $msixAsset = $release.assets | Where-Object { $_.name -like "YMusicGameBarWidget_*_${Arch}.msix" } | Select-Object -First 1
