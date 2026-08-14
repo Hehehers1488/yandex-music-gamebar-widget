@@ -50,6 +50,12 @@ Invoke-WebRequest -Uri $cerUrl -OutFile $cerPath -UseBasicParsing
 Write-Host "Importing certificate into Trusted People ..."
 Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\CurrentUser\TrustedPeople | Out-Null
 
+$existing = Get-AppxPackage -Name "YMusicGameBarWidget"
+if ($existing) {
+    Write-Host "Existing install found, removing it first (version $($existing.Version)) ..."
+    Remove-AppxPackage -Package $existing.PackageFullName -ForceApplicationShutdown
+}
+
 Write-Host "Installing $msixPath ..."
 try {
     Add-AppxPackage -Path $msixPath -ForceApplicationShutdown -ForceUpdateFromAnyVersion
