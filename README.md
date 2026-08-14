@@ -9,19 +9,28 @@ out of the game.
 The widget reads track info through the system media session (SMTC) published by the
 Yandex Music desktop app. No tokens, no accounts, no extra services.
 
+![Widget](docs/screenshot-main.png)
+
 ---
 
 ## Features
 
 - Current track: title, artist, album art, progress bar with elapsed/total time
-- Controls: play/pause, next, previous (with a `WM_APPCOMMAND` fallback if SMTC is unresponsive)
+- Controls: play/pause, next, previous, seek (click/drag the progress bar, ±5s buttons)
+- Interface scales proportionally with the window size
 - Auto-picks the Yandex Music media session (won't touch Spotify/Groove/etc.)
-- Works on Windows 10 2004+ (build 19041), x64 / ARM64
+- Works on Windows 10 2004+ (build 19041) and Windows 11, x64 / ARM64
 - Distributed as a signed MSIX package
 
-## Screenshot
+## Screenshots
 
-_Coming soon._
+Widget with a track playing (regular and enlarged window):
+
+![Widget with a track](docs/screenshot-main.png)
+
+Widget when nothing is playing:
+
+![Empty state](docs/screenshot-empty.png)
 
 ## Installation
 
@@ -48,6 +57,31 @@ irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/
 Manual install: grab `YMusicGameBarWidget_x64.msix` + `YMusicGameBarWidget.cer` from a release,
 import the `.cer` into **Trusted People** (`certmgr.msc` → Current User → Trusted People),
 then `Add-AppxPackage -Path .\YMusicGameBarWidget_x64.msix`.
+
+## FAQ
+
+**How do I uninstall?**
+Settings → Apps → Installed apps → find "Yandex Music Widget" → Uninstall.
+Or: `Get-AppxPackage -Name "YMusicGameBarWidget" | Remove-AppxPackage`.
+The widget stores no user data. A leftover certificate in "Trusted People" is harmless
+(you can remove it via `certmgr.msc`).
+
+**Why does Windows show a SmartScreen / "Unknown publisher" warning?**
+The package is signed with a self-signed certificate (this project's own, not issued by a
+public CA). The installer puts that certificate into "Trusted People" — you're telling Windows
+"this specific certificate is OK". It grants nothing else and is used only during install.
+
+**Where are playlists, shuffle, repeat, like?**
+The Yandex Music desktop app does not expose shuffle/repeat/like over the system media session
+(SMTC) — it ignores such commands and reports no state. Playlists and "My Wave" require the
+Yandex Music API (account login), which is on the roadmap.
+
+**Does the widget work in fullscreen games?**
+Xbox Game Bar overlay works in most fullscreen games (Win + G). The widget needs the Yandex
+Music app to be running and playing a track.
+
+**Is the window resizable?**
+Yes — drag its edges; the whole UI scales proportionally (min 280×120, max 500×220).
 
 ## Building from source
 
@@ -95,13 +129,28 @@ Then install with `.\tools\install-local.ps1` (or the manual steps above).
 Виджет читает информацию о треке через системную медиа-сессию (SMTC), которую публикует
 десктопное приложение Яндекс Музыки. Никаких токенов, аккаунтов и сторонних сервисов.
 
+![Виджет](docs/screenshot-main.png)
+
+---
+
 ## Возможности
 
 - Текущий трек: название, исполнитель, обложка, прогресс с временем
-- Управление: play/pause, следующий, предыдущий (с фолбэком через `WM_APPCOMMAND`)
+- Управление: play/pause, следующий, предыдущий, перемотка (клик по прогресс-бару, кнопки ±5 сек)
+- Интерфейс масштабируется пропорционально размеру окна
 - Автоматически выбирает сессию именно Яндекс Музыки (Spotify/Groove и др. не трогает)
-- Windows 10 2004+ (build 19041), x64 / ARM64
+- Windows 10 2004+ (build 19041) и Windows 11, x64 / ARM64
 - Распространяется как подписанный MSIX-пакет
+
+## Скриншоты
+
+Виджет с играющим треком (обычное и увеличенное окно):
+
+![Виджет с треком](docs/screenshot-main.png)
+
+Виджет, когда ничего не играет:
+
+![Пустое состояние](docs/screenshot-empty.png)
 
 ## Установка
 
@@ -128,6 +177,31 @@ irm https://github.com/Hehehers1488/yandex-music-gamebar-widget/releases/latest/
 Ручная установка: возьмите `YMusicGameBarWidget_x64.msix` + `YMusicGameBarWidget.cer` из релиза,
 импортируйте `.cer` в **Доверенные люди** (`certmgr.msc` → Текущий пользователь → Доверенные люди),
 затем `Add-AppxPackage -Path .\YMusicGameBarWidget_x64.msix`.
+
+## FAQ
+
+**Как удалить?**
+Параметры → Приложения → «Яндекс Музыка Виджет» → Удалить.
+Или: `Get-AppxPackage -Name "YMusicGameBarWidget" | Remove-AppxPackage`.
+Виджет не хранит никаких данных. Оставшийся сертификат в «Доверенных людях» безвреден
+(можно удалить через `certmgr.msc`).
+
+**Почему Windows показывает «Неизвестный издатель» / SmartScreen?**
+Пакет подписан самодельным сертификатом (собственным для проекта, а не выпущенным публичным ЦС).
+Установщик кладёт этот сертификат в «Доверенные люди» — так вы говорите Windows «вот этому
+сертификату доверяем». Никаких других прав он не даёт и нужен только на время установки.
+
+**Где плейлисты, перемешивание, повтор, лайк?**
+Десктопное приложение Яндекс Музыки не отдаёт и не принимает эти команды через системную
+медиа-сессию (SMTC). Плейлисты и «Моя волна» требуют официального API Яндекса (вход в аккаунт) —
+в планах.
+
+**Виджет работает в полноэкранных играх?**
+Оверлей Xbox Game Bar работает в большинстве полноэкранных игр (Win + G). Для работы нужно,
+чтобы приложение Яндекс Музыки было запущено и играло трек.
+
+**Окно можно менять в размере?**
+Да — тяните края; весь интерфейс масштабируется пропорционально (мин. 280×120, макс. 500×220).
 
 ## Сборка из исходников
 
