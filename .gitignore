@@ -1,0 +1,38 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+ARM64/
+[Bb]in/
+[Oo]bj/
+AppPackages/
+BundleArtifacts/
+
+# MSIX / appx artifacts
+*.msix
+*.msixbundle
+*.appx
+*.appxbundle
+*.msixupload
+*.appxupload
+
+# Signing
+certs/
+*.pfx
+*.cer
+
+# NuGet
+*.nupkg
+packages/
+
+# Logs
+*.log
+*.binlog

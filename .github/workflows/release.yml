@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build signed package (${{ matrix.arch }})
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, arm64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Locate MSBuild (UWP workload)
+        id: msbuild
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -products * `
+            -requires Microsoft.VisualStudio.ComponentGroup.UWP.BuildTools `
+            -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if (-not $msbuild) { Write-Error "UWP Build Tools not installed on this runner"; exit 1 }
+          Write-Host "MSBuild: $msbuild"
+          "msbuild=$msbuild" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Restore signing certificate from secrets
+        shell: pwsh
+        run: |
+          if (-not $env:CERT_BASE64) { Write-Error "CERT_BASE64 secret is not set"; exit 1 }
+          $pfx = Join-Path $env:RUNNER_TEMP "cert.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:CERT_BASE64))
+          Write-Host "Certificate restored to $pfx"
+
+      - name: Restore
+        shell: pwsh
+        run: |
+          & "${{ steps.msbuild.outputs.msbuild }}" `
+            src\YMusicGameBarWidget\YMusicGameBarWidget.csproj `
+            /t:Restore `
+            /p:Configuration=Release /p:Platform=${{ matrix.arch }} `
+            /p:RestorePackagesConfig=true
+
+      - name: Build signed MSIX
+        shell: pwsh
+        env:
+          CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }}
+        run: |
+          & "${{ steps.msbuild.outputs.msbuild }}" `
+            src\YMusicGameBarWidget\YMusicGameBarWidget.csproj `
+            /t:Build `
+            /p:Configuration=Release /p:Platform=${{ matrix.arch }} `
+            /p:AppxPackageSigningEnabled=true `
+            /p:PackageCertificateKeyFile="$env:RUNNER_TEMP\cert.pfx" `
+            /p:PackageCertificatePassword="$env:CERT_PASSWORD" `
+            /p:UapAppxPackageBuildMode=SideloadOnly `
+            /p:AppxPackageDir="${{ runner.temp }}\AppPackages" `
+            /p:AppxBundle=Never `
+            /p:GenerateAppxPackageOnBuild=true
+
+      - name: Copy certificate for release assets
+        shell: pwsh
+        run: |
+          $cer = Join-Path $env:RUNNER_TEMP "YMusicGameBarWidget.cer"
+          $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2((Join-Path $env:RUNNER_TEMP "cert.pfx"), $env:CERT_PASSWORD)
+          [IO.File]::WriteAllBytes($cer, $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert))
+          Write-Host "Exported $cer"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}\AppPackages\**\*.msix
+            ${{ runner.temp }}\YMusicGameBarWidget.cer
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          gh release create "$TAG" artifacts/release-*/*.msix artifacts/release-*/*.cer install.ps1 `
+            --repo "${{ github.repository }}" `
+            --title "$TAG" `
+            --notes "Yandex Music Game Bar widget $TAG" `
+            --generate-notes
