@@ -14,10 +14,10 @@ https://github.com/Hehehers1488/yandex-music-gamebar-widget
 > - Track info + progress with seek (click/drag, ±5s buttons)
 > - Play/pause, next, previous
 > - UI scales proportionally with the window
-> - Windows 10 2004+ / 11, x64 & ARM64, signed MSIX, one-click install
+> - Windows 10 2004+ / 11, x64 & ARM64, signed MSIX
 > - No tokens or accounts — it uses the system media session (SMTC)
 >
-> **[LINK]** — install with a single `install.bat`.
+> **[LINK]** — install with `install.bat` (double-click, accept the UAC prompt).
 > It's MIT-licensed, feedback and PRs welcome.
 
 ## EN — long (blog / Hacker News)
@@ -34,7 +34,7 @@ https://github.com/Hehehers1488/yandex-music-gamebar-widget
 > What's inside: title/artist/album art, a seekable progress bar (click or drag, plus
 > ±5s buttons), play/pause/next/previous. The window resizes freely and the whole UI
 > scales proportionally (a Viewbox). Ships as a signed MSIX, x64 and ARM64, with a
-> one-click `install.bat`.
+> `install.bat` (double-click, accept the UAC prompt).
 >
 > Some things worth knowing if you plan something similar:
 > - The Windows 10 SDK (19041) doesn't expose shuffle/like via SMTC, and the Yandex app
@@ -54,10 +54,10 @@ https://github.com/Hehehers1488/yandex-music-gamebar-widget
 > - Трек, обложка, прогресс с перемоткой (клик/перетаскивание, кнопки ±5 сек)
 > - Play/pause, следующий, предыдущий
 > - Окно можно менять в размере — интерфейс масштабируется
-> - Windows 10 2004+ / 11, x64 и ARM64, подписанный MSIX, установка в один клик
+> - Windows 10 2004+ / 11, x64 и ARM64, подписанный MSIX
 > - Без токенов и аккаунтов — работает через системную медиа-сессию (SMTC)
 >
-> **[LINK]** — ставится двойным кликом по `install.bat`.
+> **[LINK]** — ставится двойным кликом по `install.bat` (подтвердить UAC).
 > MIT-лицензия, фидбек и пул-реквесты приветствуются.
 
 ## RU — long (habr-style)
@@ -74,7 +74,7 @@ https://github.com/Hehehers1488/yandex-music-gamebar-widget
 > Что внутри: название/исполнитель/обложка, прогресс-бар с перемоткой (клик или drag,
 > плюс кнопки ±5 секунд), play/pause/следующий/предыдущий. Окно свободно меняет размер,
 > а интерфейс масштабируется целиком (через Viewbox). Поставляется как подписанный MSIX,
-> x64 и ARM64, с установщиком в один клик (`install.bat`).
+> x64 и ARM64, с установщиком `install.bat` (двойной клик + подтвердить UAC).
 >
 > Пара технических граблей, если захотите сделать похожее:
 > - В SDK 19041 нет shuffle/like через SMTC, а команду повтора Яндекс вообще игнорирует —
