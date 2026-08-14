@@ -47,8 +47,10 @@ Invoke-WebRequest -Uri $msixUrl -OutFile $msixPath -UseBasicParsing
 Write-Host "Downloading certificate ..."
 Invoke-WebRequest -Uri $cerUrl -OutFile $cerPath -UseBasicParsing
 
-Write-Host "Importing certificate into Trusted People ..."
+$thumbprint = (Get-PfxCertificate $msixPath).Thumbprint
+Write-Host "Trusting certificate $thumbprint ..."
 Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\CurrentUser\TrustedPeople | Out-Null
+Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\CurrentUser\Root | Out-Null
 
 $existing = Get-AppxPackage -Name "YMusicGameBarWidget"
 if ($existing) {
@@ -62,15 +64,13 @@ try {
 }
 catch {
     Write-Warning "Add-AppxPackage failed: $($_.Exception.Message)"
-    Write-Host "Trying with Developer Mode enabled (requires Administrator)..."
     $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Error "Developer Mode requires an elevated PowerShell. Run this script again as Administrator."
+        Write-Error "Certificate trust or deployment failed. Run this script again as Administrator to also trust the certificate machine-wide."
         throw
     }
-    $unlock = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
-    New-Item -Path $unlock -Force | Out-Null
-    Set-ItemProperty -Path $unlock -Name AllowDevelopmentWithoutDevLicense -Value 1 -Type DWord
+    Write-Host "Trusting certificate machine-wide (LocalMachine\Root) and retrying ..."
+    Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
     Add-AppxPackage -Path $msixPath -ForceApplicationShutdown -ForceUpdateFromAnyVersion
 }
 
