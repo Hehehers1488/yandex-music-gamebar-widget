@@ -102,10 +102,12 @@ jobs:
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
           TAG="${{ github.ref_name }}"
-          gh release create "$TAG" artifacts/release-*/*.msix artifacts/release-*/*.cer install.ps1 `
-            --repo "${{ github.repository }}" `
-            --title "$TAG" `
-            --notes "Yandex Music Game Bar widget $TAG" `
+          FILES=$(find artifacts -type f \( -name '*.msix' -o -name '*.cer' \))
+          gh release create "$TAG" $FILES install.ps1 \
+            --repo "${{ github.repository }}" \
+            --title "$TAG" \
+            --notes "Yandex Music Game Bar widget $TAG" \
             --generate-notes
