@@ -50,7 +50,11 @@ Invoke-WebRequest -Uri $cerUrl -OutFile $cerPath -UseBasicParsing
 $thumbprint = (Get-PfxCertificate $msixPath).Thumbprint
 Write-Host "Trusting certificate $thumbprint ..."
 Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\CurrentUser\TrustedPeople | Out-Null
-Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\CurrentUser\Root | Out-Null
+# Import-Certificate can't target the Root store in PowerShell 5.1, so use the .NET API.
+$rootStore = New-Object System.Security.Cryptography.X509Certificates.X509Store("Root", "CurrentUser")
+$rootStore.Open("ReadWrite")
+$rootStore.Add((New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cerPath)))
+$rootStore.Close()
 
 $existing = Get-AppxPackage -Name "YMusicGameBarWidget"
 if ($existing) {
@@ -70,7 +74,10 @@ catch {
         throw
     }
     Write-Host "Trusting certificate machine-wide (LocalMachine\Root) and retrying ..."
-    Import-Certificate -FilePath $cerPath -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+    $lmStore = New-Object System.Security.Cryptography.X509Certificates.X509Store("Root", "LocalMachine")
+    $lmStore.Open("ReadWrite")
+    $lmStore.Add((New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cerPath)))
+    $lmStore.Close()
     Add-AppxPackage -Path $msixPath -ForceApplicationShutdown -ForceUpdateFromAnyVersion
 }
 
